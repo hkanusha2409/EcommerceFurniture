@@ -1,0 +1,8 @@
+package com.admin.repository;
+
+@Repository
+public interface AdminRepository extends JpaRepository<AdminEntity, Integer> {
+
+	public AdminEntity findByEmail(String email);
+
+}

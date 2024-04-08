@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename local variable &apos;dtoUser&apos; in &apos;com.ecommerce.serviceimplementation.CustomerServiceImpl.getCustomerById(...)&apos; to &apos;customerDTO&apos;&#x0D;&#x0A;- Original project: &apos;CustomerService&apos;&#x0D;&#x0A;- Original element: &apos;com.ecommerce.serviceimplementation.CustomerServiceImpl.getCustomerById(int).dtoUser&apos;&#x0D;&#x0A;- Renamed element: &apos;dtoUser&apos;&#x0D;&#x0A;- Update references to refactored element" description="Rename local variable &apos;dtoUser&apos;" id="org.eclipse.jdt.ui.rename.local.variable" input="/src\/main\/java=/optional=/true=/=/maven.pomderived=/true=/&lt;com.ecommerce.serviceimplementation{CustomerServiceImpl.java[CustomerServiceImpl~getCustomerById~I@dtoUser!3988!4027!4000!4006!QCustomerDTO;!0!false" name="customerDTO" references="true" stamp="1710566034178" version="1.0"/>
+</session>

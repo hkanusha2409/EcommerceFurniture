@@ -1,0 +1,9 @@
+package com.cart.exception;
+
+public class AddToCartNotFoundException extends Exception {
+	
+	public AddToCartNotFoundException(String message) {
+		super(message);
+	}
+
+}

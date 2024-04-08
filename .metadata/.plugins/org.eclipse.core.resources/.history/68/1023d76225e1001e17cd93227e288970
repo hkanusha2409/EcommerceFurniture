@@ -1,0 +1,35 @@
+package com.ecommerce.dto;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Entity
+@Table(name = "userstable")
+@Inheritance
+public class CustomerDTO {
+
+	
+	protected int id;
+	
+	protected String username;
+	protected String password;
+	protected String email;
+	protected long number;
+	protected String address;
+
+	
+
+	
+
+}

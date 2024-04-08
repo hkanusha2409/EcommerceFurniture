@@ -1,0 +1,144 @@
+package com.ecommerce.serviceimplementation;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.ecommerce.dto.CustomerDTO;
+import com.ecommerce.entity.Customer;
+import com.ecommerce.exception.CustomerNotFoundException;
+import com.ecommerce.repository.CustomerRepository;
+import com.ecommerce.service.CustomerService;
+
+
+@Service
+public class CustomerServiceImpl implements CustomerService {
+
+	@Autowired
+	private CustomerRepository customerRepository;
+
+	
+	@Override
+	public CustomerDTO registerCustomer(Customer customer){
+		customerRepository.save(customer);
+		
+		CustomerDTO customerDTO = new CustomerDTO();
+
+		customerDTO.setId(customer.getId());
+		customerDTO.setUsername(customer.getUsername());
+		customerDTO.setAddress(customer.getAddress());
+		customerDTO.setEmail(customer.getEmail());
+		customerDTO.setNumber(customer.getNumber());
+		
+		return customerDTO;
+	}
+
+	// Read all Users
+	@Override
+	public List<CustomerDTO> readAllCustomers() throws CustomerNotFoundException {
+		List<Customer> customers = customerRepository.findAll();
+		
+		if(customers.isEmpty()) {
+			throw new CustomerNotFoundException("No Customers Registered yet");
+		}
+		
+		
+		List<CustomerDTO> userDTOs = new ArrayList<CustomerDTO>();
+		for (Customer customer : customers) {
+			CustomerDTO userDTO = new CustomerDTO();
+			userDTO.setUsername(customer.getUsername());
+			userDTO.setAddress(customer.getAddress());
+			userDTO.setEmail(customer.getEmail());
+			userDTO.setNumber(customer.getNumber());
+			userDTO.setId(customer.getId());
+			userDTOs.add(userDTO);
+
+		}
+
+		return userDTOs;
+	}
+
+	// Update User
+	@Override
+	public String updateCustomer(int id, CustomerDTO user) {
+
+		Customer customer;
+		try {
+			customer = customerRepository.findById(id).orElseThrow(() -> new CustomerNotFoundException("Customer Not Found"));
+
+			if (user.getUsername() != null)
+				customer.setUsername(user.getUsername());
+
+			if (user.getNumber() != 0)
+				customer.setNumber(user.getNumber());
+
+			if (user.getAddress() != null)
+				customer.setAddress(user.getAddress());
+
+			if (user.getEmail() != null)
+				customer.setEmail(user.getEmail());
+			if (user.getPassword() != null)
+				customer.setPassword(user.getPassword());
+
+			customerRepository.save(customer);
+		} catch (CustomerNotFoundException e) {
+			System.out.println(e);
+			return "Customer data not updated";
+
+		}
+
+		return "Customer Updated Successfully";
+
+	}
+
+	// Delete user
+	@Override
+	public String deleteCustomer(int id) {
+		
+		Customer customer = customerRepository.findById(id).get();
+
+		customerRepository.deleteById(id);
+
+		return "Customer  details deleted Successfully";
+	}
+	
+	@Override
+	public List<CustomerDTO> getByEmail(String email) {
+		List<Customer> customers = customerRepository.findByEmail(email);
+
+		List<CustomerDTO> userDTOs = new ArrayList<>();
+
+		for (Customer customer : customers) {
+			CustomerDTO dtoUser = new CustomerDTO();
+			dtoUser.setAddress(customer.getAddress());
+			dtoUser.setEmail(customer.getEmail());
+			dtoUser.setPassword(customer.getPassword());
+			dtoUser.setNumber(customer.getNumber());
+			dtoUser.setUsername(customer.getUsername());
+			dtoUser.setId(customer.getId());
+			userDTOs.add(dtoUser);
+		}
+
+		return userDTOs;
+	}
+
+	@Override
+	public CustomerDTO getCustomerById(int id) {
+		Customer customer = customerRepository.findById(id).get();
+
+		CustomerDTO dtoUser = new CustomerDTO();
+		dtoUser.setAddress(customer.getAddress());
+		dtoUser.setEmail(customer.getEmail());
+		dtoUser.setPassword(customer.getPassword());
+		dtoUser.setNumber(customer.getNumber());
+		dtoUser.setUsername(customer.getUsername());
+		dtoUser.setId(customer.getId());
+
+		return dtoUser;
+	}
+
+	
+}
+

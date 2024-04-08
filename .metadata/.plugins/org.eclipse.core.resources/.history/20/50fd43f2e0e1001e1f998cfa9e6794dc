@@ -1,0 +1,13 @@
+package com.cart.service;
+
+import com.cart.dto.CartDTO;
+import com.cart.exception.AddToCartNotFoundException;
+
+public interface CartService {
+	
+	public CartDTO addToCart(int custid,int productid)throws AddToCartNotFoundException;
+
+	public String deleteProduct(int custid, int prodid);
+	
+
+}

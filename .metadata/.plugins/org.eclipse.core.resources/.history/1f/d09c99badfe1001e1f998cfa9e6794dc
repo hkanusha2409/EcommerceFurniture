@@ -1,0 +1,185 @@
+package com.cart.serviceimpl;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.cart.client.CustomerService;
+import com.cart.client.ProductService;
+import com.cart.dto.CartDTO;
+import com.cart.entity.Cart;
+import com.cart.exception.AddToCartNotFoundException;
+import com.cart.repository.CartRepository;
+import com.cart.service.CartService;
+import com.ecommerce.dto.CustomerDTO;
+import com.ecommerce.exception.CustomerNotFoundException;
+import com.google.common.base.Optional;
+import com.product.dto.ProductDTO;
+import com.product.entity.Product;
+
+@Service
+public class CartServiceImpl implements CartService {
+	
+	@Autowired
+	private CustomerService customerService;
+
+	@Autowired
+	private ProductService productService;
+
+	@Autowired
+	private CartRepository cartRepository;
+
+	public CartDTO addToCart(int customerId, int productId) {
+		
+		
+		CustomerDTO customer = customerService.getCustomerById(customerId);
+		
+		if(customer==null) {
+			throw new AddToCartNotFoundException("Customer Not Found by the Id");
+		}
+		
+		ProductDTO product = productService.getProductById(productId);
+		
+		if(customer==null) {
+			throw new AddToCartNotFoundException("Customer Not Found by the Id");
+		}
+		
+		
+		
+			
+			Cart cart = new Cart();
+			List<Integer> products = new ArrayList<>();
+			if(cart!=null) {
+				Cart existedCart = cartRepository.findByCustomerId(customerId).get();
+				
+				
+				cart.setTotalQuantity(existedCart.getTotalQuantity() +1);
+			}
+			else {
+				
+				
+				products.add(productId);
+				
+				cart.setCustomerId(customerId);
+				cart.setProductIds(products);
+				cart.setTotalPrice(product.getProductPrice()+cart.getTotalPrice());
+				cart.setTotalQuantity(1);
+				cartRepository.save(cart);
+			}
+			
+			CartDTO cartDTO = new CartDTO();
+
+		
+		
+		
+		
+		
+		Cart cart = customer.getCart();
+
+		if (cart == null) {
+			cart = new Cart();
+			cart.setCustomer(customer);
+			customer.setCart(cart);
+		}
+
+		CartItem cartItem = cart.getCartItems().stream().filter(item -> item.getProduct().equals(product)).findFirst()
+				.orElse(null);
+
+		if (cartItem != null) {
+			cartItem.setQuantity(cartItem.getQuantity() + 1);
+		} else {
+			cartItem = new CartItem();
+			cartItem.setProduct(product);
+			cartItem.setQuantity(1);
+			cartItem.setCart(cart);
+			cart.getCartItems().add(cartItem);
+		}
+		total = cart.getTotalPrice();
+
+		quantity = cart.getTotalQuantity();
+		quantity = quantity + 1;
+		total = product.getProductPrice() + total;
+		cart.setTotalPrice(total);
+		cart.setTotalQuantity(quantity);
+
+		cartRepository.save(cart);
+
+		UserDTO userDTO = new UserDTO();
+
+		userDTO.setAddress(customer.getAddress());
+		userDTO.setEmail(customer.getEmail());
+		userDTO.setNumber(customer.getNumber());
+		userDTO.setPassword(customer.getPassword());
+		userDTO.setId(customer.getId());
+		userDTO.setUsername(customer.getUsername());
+
+		cartDTO.setCustomer(userDTO);
+
+		List<CartItemDTO> cartItemDTOs = new ArrayList<>();
+		for (CartItem product_i : cart.getCartItems()) {
+			CartItemDTO cartItemDTO = new CartItemDTO();
+
+			cartItemDTO.setProduct(mapProductsToDTO(product_i.getProduct()));
+			cartItemDTO.setQuantity(product_i.getQuantity());
+			cartItemDTOs.add(cartItemDTO);
+		}
+		cartDTO.setCartItems(cartItemDTOs);
+		cartDTO.setTotalPrice(total);
+		cartDTO.setTotalQuantity(quantity);
+		return cartDTO;
+
+	}
+
+	private ProductDTO mapProductsToDTO(Product product) {
+
+		ProductDTO productDTO = new ProductDTO();
+
+		productDTO.setBrand(product.getBrand());
+		productDTO.setCategory(product.getCategory());
+		productDTO.setProductId(product.getProductId());
+		productDTO.setProductImage(product.getProductImage());
+		productDTO.setProductName(product.getProductName());
+		productDTO.setProductPrice(product.getProductPrice());
+
+		return productDTO;
+
+	}
+
+	public String deleteProduct(int custid, int prodid) {
+
+		CustomerEntity customer;
+		try {
+			customer = customerRepository.findById(custid).orElseThrow(() -> new CustomerNotFoundException());
+
+			Cart cart = customer.getCart();
+
+			List<CartItem> cartItems = cart.getCartItems();
+
+			int quantity;
+			double totalprice;
+			quantity = cart.getTotalQuantity();
+			totalprice = cart.getTotalPrice();
+			for (CartItem cartItem : cartItems) {
+
+				Product product = cartItem.getProduct();
+
+				if (product.getProductId() == prodid) {
+					quantity = quantity - 1;
+					totalprice = totalprice - product.getProductPrice();
+					cartItem.setQuantity(cartItem.getQuantity() - 1);
+				}
+			}
+			cart.setTotalPrice(totalprice);
+			cart.setTotalQuantity(quantity);
+			cartRepository.save(cart);
+
+			return "deleted Successfully";
+		} catch (CustomerNotFoundException e) {
+			System.out.println(e);
+			return "Customer not Found";
+		}
+
+	}
+}

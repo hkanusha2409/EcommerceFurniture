@@ -1,0 +1,37 @@
+package com.order.controller;
+
+
+@RestController
+@RequestMapping("/orders")
+@CrossOrigin(origins = "*") // Frontend Connection
+public class OrdersController {
+
+	@Autowired
+	private OrdersServiceImpl ordersServiceImpl;
+
+	@PostMapping("/placeOrder/{custid}")
+	public OrdersDTO addOrder(@PathVariable(value = "custid") int custid) {
+		return ordersServiceImpl.addOrders(custid);
+	}
+
+	@GetMapping("/find/{orderId}")
+	public OrdersDTO FindById(@PathVariable(value = "orderId") int orderId) {
+		return ordersServiceImpl.getById(orderId);
+	}
+
+	@GetMapping("/findall")
+	public List<OrdersDTO> FindAllOrders() {
+		return ordersServiceImpl.findAl();
+	}
+
+	@DeleteMapping("/deleteOrder/{no}")
+	public String deleteOrder(@PathVariable(value = "no") int no) {
+		return ordersServiceImpl.deleteOrders(no);
+
+	}
+
+	@GetMapping("/findBycustId/{custId}")
+	public List<OrdersDTO> getOrderCustId(@PathVariable(value = "custId") int custId) {
+		return ordersServiceImpl.getOrderCustomerId(custId);
+	}
+}

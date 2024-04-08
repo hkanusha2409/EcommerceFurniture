@@ -1,0 +1,5 @@
+package com.category.repository;
+
+public interface CategoryRepository {
+
+}

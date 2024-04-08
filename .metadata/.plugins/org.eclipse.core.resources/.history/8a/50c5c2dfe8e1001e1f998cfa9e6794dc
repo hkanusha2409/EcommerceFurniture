@@ -1,0 +1,15 @@
+package com.cart.client;
+
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+
+import com.ecommerce.dto.CustomerDTO;
+
+@FeignClient(name="customer_service", url="http://localhost:8081")
+public interface CustomerService {
+	
+	@GetMapping("/customer/byId/{id}")
+	public CustomerDTO getCustomerById(@PathVariable(value = "id") int id);
+
+}

@@ -1,0 +1,13 @@
+package com.payment.service;
+
+import com.payment.dto.PaymentDTO;
+import com.payment.entity.Payment;
+
+public interface PaymentService {
+	
+	
+	 PaymentDTO makePayment(Payment payment);
+	 
+	 PaymentDTO getPaymentById(int paymentId);
+
+}

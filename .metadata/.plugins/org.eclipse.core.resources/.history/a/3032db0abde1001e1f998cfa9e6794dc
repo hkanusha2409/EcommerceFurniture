@@ -1,0 +1,8 @@
+package com.product.client;
+
+import org.springframework.cloud.openfeign.FeignClient;
+
+@FeignClient(name="Category_service", url="http://localhost:8084") 
+public interface CategoryService {
+
+}

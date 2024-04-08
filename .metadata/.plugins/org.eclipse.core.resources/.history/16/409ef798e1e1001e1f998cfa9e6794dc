@@ -1,0 +1,115 @@
+package com.cart.serviceimpl;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.cart.client.CustomerService;
+import com.cart.client.ProductService;
+import com.cart.dto.CartDTO;
+import com.cart.entity.Cart;
+import com.cart.exception.AddToCartNotFoundException;
+import com.cart.repository.CartRepository;
+import com.cart.service.CartService;
+import com.ecommerce.dto.CustomerDTO;
+import com.ecommerce.exception.CustomerNotFoundException;
+import com.google.common.base.Optional;
+import com.product.dto.ProductDTO;
+import com.product.entity.Product;
+import com.product.exception.ProductNotFoundException;
+
+@Service
+public class CartServiceImpl implements CartService {
+	
+	@Autowired
+	private CustomerService customerService;
+
+	@Autowired
+	private ProductService productService;
+
+	@Autowired
+	private CartRepository cartRepository;
+
+	public CartDTO addToCart(int customerId, int productId) throws AddToCartNotFoundException, V{
+		
+		
+		CustomerDTO customer = customerService.getCustomerById(customerId);
+		
+		if(customer==null) {
+			throw new AddToCartNotFoundException("Customer Not Found by the Id");
+		}
+		
+		ProductDTO product = productService.getProductById(productId);
+		
+		if(customer==null) {
+			throw new ProductNotFoundException("Product Not Found by the Id");
+		}
+		
+		
+		
+			
+		Cart cart = cartRepository.findByCustomerId(customerId).get();
+		List<Integer> products =cart.getProductIds();
+		
+			if(cart!=null) {
+				
+					
+				products.add(productId);	
+				cart.setProductIds(products);
+				cart.setTotalPrice(product.getProductPrice()+cart.getTotalPrice());
+				
+				cart.setTotalQuantity(cart.getTotalQuantity() +1);
+				cartRepository.save(cart);
+			}
+			else {
+				
+				
+				products.add(productId);
+				
+				cart.setCustomerId(customerId);
+				cart.setProductIds(products);
+				cart.setTotalPrice(product.getProductPrice()+cart.getTotalPrice());
+				cart.setTotalQuantity(1);
+				cartRepository.save(cart);
+			}
+			
+			CartDTO cartDTO = new CartDTO();
+			
+			cartDTO.setId(cart.getId());
+			cartDTO.setCustomerId(cart.getCustomerId());
+			cartDTO.setProductIds(cart.getProductIds());
+			cartDTO.setTotalPrice(cart.getTotalPrice());
+			cartDTO.setTotalQuantity(cart.getTotalQuantity());
+			return cartDTO;
+		
+		
+		
+		
+		
+
+	}
+
+	
+
+	public String deleteProduct(int custid, int prodid)  {
+		
+		CustomerDTO customer = customerService.getCustomerById(custid);
+		
+		if(customer==null) {
+			throw new CustomerNotFoundException("Customer Not Found by the Id");
+		}
+		
+		Cart cart = cartRepository.findByCustomerId(custid).get();
+		
+		
+		
+		List<Integer> products = cart.getProductIds();
+		
+		products.remove(prodid);
+
+		
+
+	}
+}

@@ -1,0 +1,15 @@
+package com.product.client;
+
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+
+
+@FeignClient(name="Category_service", url="http://localhost:8084") 
+public interface CategoryService {
+
+	@GetMapping("/byId/{category_id}")
+	public CategoryDTO getCategoryById(@PathVariable(value = "category_id") int id) {
+		return categoryServiceImpl.searchCategoryById(id);
+	}
+}

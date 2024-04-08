@@ -1,0 +1,235 @@
+package com.order.serviceimpl;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.order.client.CartService;
+import com.order.dto.CartDTO;
+import com.order.dto.OrderDTO;
+import com.order.entity.Order;
+import com.order.exception.CartNotFoundException;
+import com.order.exception.OrderNotFoundException;
+import com.order.repository.OrderRepository;
+import com.order.service.OrderService;
+import com.order.util.Status;
+
+
+
+
+@Service
+public class OrderServiceImpl implements OrderService {
+
+	@Autowired
+	private CartService cartService;
+	@Autowired
+	private OrderRepository orderRepository;
+//	@Autowired
+//	private OrderedCartRepository orderedCartRepository;
+
+	public OrderDTO addOrders(int customerId) throws CartNotFoundException {
+
+		
+		
+			CartDTO cartDTO = cartService.getCartByCustomerId(customerId);
+			
+			if(cartDTO==null) {
+				throw new CartNotFoundException("Cart Not Assigned to this customer. Please Order Again");
+			}
+			
+			Order order = new Order();
+			
+			order.setDate(LocalDateTime.now());
+			order.setStatus(Status.PENDING);
+			order.setCustomerId(customerId);
+			order.setCartId(cartDTO.getId());
+			order.setProductIds(cartDTO.getProductIds());
+			order.setTotalPrice(cartDTO.getTotalPrice());
+			order.setTotalQuantity(cartDTO.getTotalQuantity());
+
+			orderRepository.save(order);
+			
+			
+			
+			return mapToOrderDTO( order);
+			
+	}
+
+	public OrderDTO getOrderById(int id) throws OrderNotFoundException {
+
+		Order order = orderRepository.findById(id).get();
+		if(order==null) {
+			throw new OrderNotFoundException("Order Not Found By the given Id");
+		}
+		
+		return mapToOrderDTO( order);
+		
+		
+	}
+
+	
+	public OrderDTO mapToOrderDTO(Order order) {
+		
+		OrderDTO orderDTO = new OrderDTO();
+		
+		orderDTO.setOrderId(order.getOrderId());
+		orderDTO.setDate(order.getDate());
+		orderDTO.setCustomerId(order.getCustomerId());
+		orderDTO.setCartId(order.getCartId());
+		orderDTO.setProductIds(order.getProductIds());
+		orderDTO.setTotalQuantity(order.getTotalQuantity());
+		orderDTO.setTotalPrice(order.getTotalPrice());
+		orderDTO.setStatus(order.getStatus());
+		
+		return orderDTO;
+		
+	}
+	
+	
+
+	
+	
+	public List<OrderDTO> getAllOrders() throws OrderNotFoundException{
+		
+		
+
+		List<Orders> orders = orderRepository.findAll();
+
+		List<OrdersDTO> ordersDTOs = new ArrayList<OrdersDTO>();
+		List<OrderedCart> carts = orderedCartRepository.findAll();
+		for (Orders order : orders) {
+			OrdersDTO orderDTO = new OrdersDTO();
+			for (OrderedCart cart : carts) {
+				if (order.getOrderId() == cart.getOrderid())
+					orderDTO.setOrderedCartDTO(mapCartToDTO(cart));
+			}
+			orderDTO.setDate(order.getDate());
+			orderDTO.setOrderId(order.getOrderId());
+			orderDTO.setStatus(order.getStatus());
+
+			ordersDTOs.add(orderDTO);
+
+		}
+
+		return ordersDTOs;
+	}
+
+	public String deleteOrders(int orderId) {
+
+		OrderedCart cart = orderedCartRepository.findByOrderId(orderId);
+
+		cart.getCartItems().clear();
+
+		ordersRepository.deleteById(orderId);
+		orderedCartRepository.deleteByOrderId(orderId);
+		return "Deleted Successfully";
+	}
+
+	public List<OrdersDTO> getOrderCustomerId(int customerId) {
+
+		List<OrderedCart> carts = orderedCartRepository.findByCustomerId(customerId);
+
+		List<Orders> orders = ordersRepository.findAll();
+
+		List<OrdersDTO> ordersDTOs = new ArrayList<OrdersDTO>();
+
+		for (Orders order : orders) {
+			for (OrderedCart cart : carts) {
+				if (order.getOrderId() == cart.getOrderid()) {
+					OrdersDTO orderDTO = new OrdersDTO();
+					orderDTO.setDate(order.getDate());
+					orderDTO.setOrderId(order.getOrderId());
+					orderDTO.setStatus(order.getStatus());
+					orderDTO.setOrderedCartDTO(mapCartToDTO(cart));
+
+					ordersDTOs.add(orderDTO);
+
+				}
+			}
+		}
+		return ordersDTOs;
+
+	}
+
+	private CartDTO mapCartToDTO(Cart cart) {
+		CartDTO cartDTO = new CartDTO();
+		cartDTO.setId(cart.getId());
+		cartDTO.setCustomer(mapCustomerToDTO(cart.getCustomer()));
+		cartDTO.setCartItems(mapCartItemsToDTO(cart.getCartItems()));
+		cartDTO.setTotalPrice(cart.getTotalPrice());
+		cartDTO.setTotalQuantity(cart.getTotalQuantity());
+		return cartDTO;
+	}
+
+	private UserDTO mapCustomerToDTO(CustomerEntity customer) {
+		UserDTO customerDTO = new UserDTO();
+		customerDTO.setId(customer.getId());
+		customerDTO.setAddress(customer.getAddress());
+		customerDTO.setEmail(customer.getEmail());
+		customerDTO.setNumber(customer.getNumber());
+		customerDTO.setUsername(customer.getUsername());
+		return customerDTO;
+	}
+
+	private List<CartItemDTO> mapCartItemsToDTO(List<CartItem> cartItems) {
+		List<CartItemDTO> cartitemDTOs = new ArrayList<CartItemDTO>();
+
+		for (CartItem cartitem : cartItems) {
+
+			CartItemDTO cartItemDTO = new CartItemDTO();
+			cartItemDTO.setId(cartitem.getId());
+			cartItemDTO.setProduct(mapProductsToDTO(cartitem.getProduct()));
+			cartItemDTO.setQuantity(cartitem.getQuantity());
+
+			cartitemDTOs.add(cartItemDTO);
+
+		}
+		return cartitemDTOs;
+
+	}
+
+	private ProductDTO mapProductsToDTO(Product product) {
+
+		ProductDTO productDTO = new ProductDTO();
+		productDTO.setBrand(product.getBrand());
+		productDTO.setCategory(product.getCategory());
+		productDTO.setProductId(product.getProductId());
+		productDTO.setProductImage(product.getProductImage());
+		productDTO.setProductName(product.getProductName());
+		productDTO.setProductPrice(product.getProductPrice());
+
+		return productDTO;
+
+	}
+
+	private OrderedCartDTO mapCartToDTO(OrderedCart cart) {
+		OrderedCartDTO cartDTO = new OrderedCartDTO();
+		cartDTO.setId(cart.getId());
+		cartDTO.setCustomer(mapCustomerToDTO(cart.getCustomer()));
+		cartDTO.setCartItems(mapCartItemsToDTO1(cart.getCartItems()));
+		cartDTO.setTotalPrice(cart.getTotalPrice());
+		cartDTO.setTotalQuantity(cart.getTotalQuantity());
+		return cartDTO;
+	}
+
+	private List<OrderedCartItemDTO> mapCartItemsToDTO1(List<OrderedCartItems> cartItems) {
+		List<OrderedCartItemDTO> cartitemDTOs = new ArrayList<OrderedCartItemDTO>();
+
+		for (OrderedCartItems cartitem : cartItems) {
+
+			OrderedCartItemDTO cartItemDTO = new OrderedCartItemDTO();
+			cartItemDTO.setId(cartitem.getId());
+			cartItemDTO.setProduct(mapProductsToDTO(cartitem.getProduct()));
+			cartItemDTO.setQuantity(cartitem.getQuantity());
+
+			cartitemDTOs.add(cartItemDTO);
+
+		}
+		return cartitemDTOs;
+	}
+
+}
+

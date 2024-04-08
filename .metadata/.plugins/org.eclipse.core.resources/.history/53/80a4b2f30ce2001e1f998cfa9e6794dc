@@ -1,0 +1,16 @@
+package com.order.client;
+
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.GetMapping;
+
+import com.order.exception.CartNotFoundException;
+
+
+
+@FeignClient(name="cart-service", url="http://localhost:8085")
+public interface CartService {
+	
+	@GetMapping("/getCartByCustId")
+	public CartDTO getCartByCustomerId(int customerId) throws CartNotFoundException;
+
+}

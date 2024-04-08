@@ -1,0 +1,20 @@
+package com.ecommerce.service;
+
+import java.util.List;
+
+import com.ecommerce.dto.CustomerDTO;
+import com.ecommerce.entity.Customer;
+
+
+public interface CustomerService {
+	public CustomerDTO registerCustomer(Customer customer);
+
+	public String updateCustomer(int id, CustomerDTO customerDTO);
+
+	public boolean deleteCustomer(int id);
+
+	public List<CustomerDTO> getByEmail(String email);
+
+//	public CartDTO getCartByCustomer(int customerId);
+
+}

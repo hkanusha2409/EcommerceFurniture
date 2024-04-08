@@ -1,0 +1,26 @@
+package com.ecommerce.service;
+
+import java.util.List;
+
+import com.ecommerce.dto.CustomerDTO;
+import com.ecommerce.entity.Customer;
+import com.ecommerce.exception.CustomerNotFoundException;
+
+
+public interface CustomerService {
+	
+	public CustomerDTO registerCustomer(Customer customer);
+	
+	public List<CustomerDTO> readAllCustomers() throws CustomerNotFoundException ;
+
+	public String updateCustomer(int id, CustomerDTO customerDTO) throws CustomerNotFoundException ;
+
+	public boolean deleteCustomer(int id);
+
+	public List<CustomerDTO> getByEmail(String email);
+	
+	public CustomerDTO getCustomerById(int id) ;
+
+//	public CartDTO getCartByCustomer(int customerId);
+
+}
